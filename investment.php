@@ -1,4 +1,5 @@
 ﻿<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.0, user-scalable=yes" /> 
+
 <form method="POST" action="investment.php"> 
     <select name="shares">
       <option value="AIR">AIR NZ</option>
@@ -10,12 +11,16 @@
 <br>
 <?php
 $share = $_POST["shares"];
-echo $share.'<br>';
 $html = "";
-include_once("simple_html_dom.php");
+include('simple_html_dom.php');
+$opts = array(
+  'http'=>array(
+    'header'=>"User-Agent:Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X; en-us) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53\r\n"
+  )
+);
+$context = stream_context_create($opts);
 $url = (string)('https://www.nzx.com/instruments/'.$share);
-$html = file_get_html($url);
-echo '<br>';
+$html = file_get_html($url, false, $context);
 //find the close price or now price
 $Findcloseprice = $html->find('div[class=small-12 medium-5 columns] h1',0);
 $Findcloseprice = $Findcloseprice->plaintext;
@@ -27,6 +32,7 @@ foreach($Findopenprices as $row){
     $arr[$pricetype] = $price;
 }
 echo '<table><tbody<tr><td>';
+echo $row;
 //get the open high low close price
 echo 'open price = ';
 echo $openprice = substr(trim($arr["Open"]),1);
